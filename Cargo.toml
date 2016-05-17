@@ -1,0 +1,8 @@
+[package]
+name = "burstweb"
+version = "0.1.0"
+authors = ["saye <zihuyishi@live.cn>"]
+
+[dependencies]
+getopts = "*"
+hyper = "*"
