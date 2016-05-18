@@ -8,6 +8,8 @@ use std::time::{SystemTime, Duration};
 use std::thread;
 use std::sync::mpsc;
 use hyper::method::Method;
+use hyper::header::ContentType;
+use hyper::mime::{Mime, TopLevel, SubLevel};
 
 fn measure_uri_mutl(method: Method, url: String, times: i64, body: Option<String>) {
     let thread_count = 4;
@@ -27,7 +29,7 @@ fn measure_uri_mutl(method: Method, url: String, times: i64, body: Option<String
                 Method::Post => {
                     post_uri(url, body.unwrap(), works)
                 },
-                _ => 0.0f64,
+                _ => 0f64,
             };
             tx.send(cost).unwrap();
         });
@@ -77,7 +79,11 @@ fn post_uri(url: String, body: String, times: i64) -> f64 {
              url, body, times);
     let work_fn = move || {
         for _ in 0..times {
-            client.post(&url).body(&body).send().unwrap();
+            let content_type = ContentType(Mime(TopLevel::Application,
+                                                SubLevel::Json, vec![]));
+            let req = client.post(&url).body(&body)
+                .header(content_type);
+            req.send().unwrap();
         }
     };
     measure_work(work_fn)
